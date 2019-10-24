@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
@@ -17,8 +18,8 @@ public class TestFoundationOpMode extends LinearOpMode {
         while(!isStopRequested()){
             foundation_left.setPosition(gamepad1.left_trigger);
             foundation_right.setPosition(gamepad1.right_trigger);
-            telemetry.addData("Left", String.format("%.2f",foundation_left.getPosition()));
-            telemetry.addData("Right", String.format("%.2f",foundation_right.getPosition()));
+            telemetry.addData("LT_Left", String.format("%.2f",foundation_left.getPosition()));
+            telemetry.addData("RT_Right", String.format("%.2f",foundation_right.getPosition()));
 
         }
 

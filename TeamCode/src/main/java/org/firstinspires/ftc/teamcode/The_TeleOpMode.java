@@ -7,6 +7,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
+// order to test programs:
+// - TestFoundationOpMode, to measure servo up/down positions for left/right servo
+// - TestWebbyOpMode, to measure spin/grab positions for open/close
+// - TestWebbyOpMode, to measure winch direction, torque, and speed
 @TeleOp
 public class The_TeleOpMode extends LinearOpMode {
     @Override
@@ -23,8 +27,20 @@ public class The_TeleOpMode extends LinearOpMode {
         ServoImplEx rightIntakeServo = hardwareMap.get(ServoImplEx.class, "right_intake_servo");
         rightIntakeServo.setPwmRange(new PwmControl.PwmRange(500, 2500));
 
+        DcMotor winch = hardwareMap.get(DcMotor.class, "Winch");
+        ServoImplEx webby_grab = hardwareMap.get(ServoImplEx.class, "Webby Grab");
+        webby_grab.setPwmRange(new PwmControl.PwmRange(	500 ,2500));
+        ServoImplEx webby_spin = hardwareMap.get(ServoImplEx.class,"Webby Spin");
+        webby_spin.setPwmRange(new PwmControl.PwmRange(553,2425));
+
+        ServoImplEx foundation_left = hardwareMap.get(ServoImplEx.class, "Foundation Left");
+        foundation_left.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        ServoImplEx foundation_right = hardwareMap.get(ServoImplEx.class, "Foundation Right");
+        foundation_right.setPwmRange(new PwmControl.PwmRange(500, 2500));
+
         waitForStart();
         while (!isStopRequested()){
+            // Mecanum Drive
             double speed = -gamepad1.left_stick_y;
             double strafe = gamepad1.left_stick_x;
             double rotate = gamepad1.right_stick_x;
@@ -37,8 +53,7 @@ public class The_TeleOpMode extends LinearOpMode {
             double scale;
             if (max>1){
                 scale = 1/max;
-            }
-            else{
+            } else{
                 scale = 1;
             }
             front_left.setPower(scale*front_left_power);
@@ -46,6 +61,7 @@ public class The_TeleOpMode extends LinearOpMode {
             back_left.setPower(scale*back_left_power);
             back_right.setPower(scale*back_right_power);
 
+            // Intake
             if (gamepad1.a) {
                 leftIntakeServo.setPosition(-1.0);
                 rightIntakeServo.setPosition(1.0);
@@ -55,6 +71,29 @@ public class The_TeleOpMode extends LinearOpMode {
             } else {
                 leftIntakeServo.setPosition(0);
                 rightIntakeServo.setPosition(0);
+            }
+
+            // Webby
+            winch.setPower(gamepad2.left_stick_y);
+            if (gamepad2.dpad_down){
+                webby_grab.setPosition(0.7); // TODO: Measure Real Number
+            } else if (gamepad2.dpad_up){
+                webby_grab.setPosition(0); // TODO: Measure Number
+            }
+            // TODO: Protect against webby spinning when it is too low
+            if (gamepad2.b){
+                webby_spin.setPosition(1); //TODO: measure in robot position
+            } else if (gamepad2.a) {
+                webby_spin.setPosition(0); //TODO: Measure Placing position
+            }
+
+            // Foundation Mover
+            if (gamepad1.dpad_up){
+                foundation_left.setPosition(0.5);
+                foundation_right.setPosition(0); // TODO: Measure Release Position
+            } else if (gamepad1.dpad_down){
+                foundation_left.setPosition(0);
+                foundation_right.setPosition(0.5); // TODO: Measure Grab Position
             }
         }
     }
