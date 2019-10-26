@@ -20,8 +20,7 @@ public class TestFoundationOpMode extends LinearOpMode {
             foundation_right.setPosition(gamepad1.right_trigger);
             telemetry.addData("LT_Left", String.format("%.2f",foundation_left.getPosition()));
             telemetry.addData("RT_Right", String.format("%.2f",foundation_right.getPosition()));
-
+            telemetry.update();
         }
-
     }
 }

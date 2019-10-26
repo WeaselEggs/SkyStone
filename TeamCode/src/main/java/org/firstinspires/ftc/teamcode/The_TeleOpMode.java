@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
@@ -22,9 +25,9 @@ public class The_TeleOpMode extends LinearOpMode {
         front_left.setDirection(DcMotorSimple.Direction.REVERSE);
         back_left.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        ServoImplEx leftIntakeServo = hardwareMap.get(ServoImplEx.class, "left_intake_servo");
+        CRServoImplEx leftIntakeServo = hardwareMap.get(CRServoImplEx.class, "Left Intake");
         leftIntakeServo.setPwmRange(new PwmControl.PwmRange(500, 2500));
-        ServoImplEx rightIntakeServo = hardwareMap.get(ServoImplEx.class, "right_intake_servo");
+        CRServoImplEx rightIntakeServo = hardwareMap.get(CRServoImplEx.class, "Right Intake");
         rightIntakeServo.setPwmRange(new PwmControl.PwmRange(500, 2500));
 
         DcMotor winch = hardwareMap.get(DcMotor.class, "Winch");
@@ -37,6 +40,15 @@ public class The_TeleOpMode extends LinearOpMode {
         foundation_left.setPwmRange(new PwmControl.PwmRange(500, 2500));
         ServoImplEx foundation_right = hardwareMap.get(ServoImplEx.class, "Foundation Right");
         foundation_right.setPwmRange(new PwmControl.PwmRange(500, 2500));
+
+        RevBlinkinLedDriver led = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
+
+led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE); // TODO: If we don't add LEDs remove this part
+
+        webby_grab.setPosition(0.6);
+        webby_spin.setPosition(0);
+        foundation_left.setPosition(0.45);
+        foundation_right.setPosition(0.44);
 
         waitForStart();
         while (!isStopRequested()){
@@ -63,38 +75,45 @@ public class The_TeleOpMode extends LinearOpMode {
 
             // Intake
             if (gamepad1.a) {
-                leftIntakeServo.setPosition(-1.0);
-                rightIntakeServo.setPosition(1.0);
+                leftIntakeServo.setPower(1.0);
+                rightIntakeServo.setPower(-1.0);
             } else if (gamepad1.b) {
-                leftIntakeServo.setPosition(1.0);
-                rightIntakeServo.setPosition(-1.0);
+                leftIntakeServo.setPower(-1.0);
+                rightIntakeServo.setPower(1.0);
             } else {
-                leftIntakeServo.setPosition(0);
-                rightIntakeServo.setPosition(0);
+                leftIntakeServo.setPower(0);
+                rightIntakeServo.setPower(0);
             }
 
             // Webby
             winch.setPower(gamepad2.left_stick_y);
             if (gamepad2.dpad_down){
-                webby_grab.setPosition(0.7); // TODO: Measure Real Number
+                webby_grab.setPosition(0.73);
             } else if (gamepad2.dpad_up){
-                webby_grab.setPosition(0); // TODO: Measure Number
+                webby_grab.setPosition(0.6);
             }
             // TODO: Protect against webby spinning when it is too low
             if (gamepad2.b){
-                webby_spin.setPosition(1); //TODO: measure in robot position
+                webby_spin.setPosition(0);
             } else if (gamepad2.a) {
-                webby_spin.setPosition(0); //TODO: Measure Placing position
+                webby_spin.setPosition(1);
             }
 
             // Foundation Mover
             if (gamepad1.dpad_up){
-                foundation_left.setPosition(0.5);
-                foundation_right.setPosition(0); // TODO: Measure Release Position
+                foundation_left.setPosition(0.45);
+                foundation_right.setPosition(0.44);
             } else if (gamepad1.dpad_down){
-                foundation_left.setPosition(0);
-                foundation_right.setPosition(0.5); // TODO: Measure Grab Position
+                foundation_left.setPosition(0.9);
+                foundation_right.setPosition(0);
             }
+
+            // LEDs TODO: If we don't add LEDs remove this part
+            if (gamepad1.start)
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            else if (gamepad1.back)
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+
         }
     }
 }

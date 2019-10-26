@@ -24,6 +24,7 @@ public class TestWebbyOpMode extends LinearOpMode {
             telemetry.addData("LT_Grab", String.format("%.2f",webby_grab.getPosition()));
             telemetry.addData("RT_Spin", String.format("%.2f",webby_spin.getPosition()));
             telemetry.addData("LSY_Winch", String.format("%.2f", winch.getPower()));
+            telemetry.update();
         }
     }
 }
