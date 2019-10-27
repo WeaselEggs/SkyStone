@@ -45,7 +45,7 @@ public class The_TeleOpMode extends LinearOpMode {
 
 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE); // TODO: If we don't add LEDs remove this part
 
-        webby_grab.setPosition(0.6);
+        webby_grab.setPosition(0.75);
         webby_spin.setPosition(0);
         foundation_left.setPosition(0.45);
         foundation_right.setPosition(0.44);
@@ -86,11 +86,11 @@ led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE); // TODO: If 
             }
 
             // Webby
-            winch.setPower(gamepad2.left_stick_y);
+            winch.setPower(-gamepad2.left_stick_y / 2);
             if (gamepad2.dpad_down){
-                webby_grab.setPosition(0.73);
+                webby_grab.setPosition(1);
             } else if (gamepad2.dpad_up){
-                webby_grab.setPosition(0.6);
+                webby_grab.setPosition(0.75);
             }
             // TODO: Protect against webby spinning when it is too low
             if (gamepad2.b){
