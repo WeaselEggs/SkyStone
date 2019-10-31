@@ -15,15 +15,17 @@ public class TestWebbyOpMode extends LinearOpMode {
         ServoImplEx webby_spin = hardwareMap.get(ServoImplEx.class,"Webby Spin");
         webby_spin.setPwmRange(new PwmControl.PwmRange(553,2425));
         DcMotor winch = hardwareMap.get(DcMotor.class, "Winch");
+        winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
         while(!isStopRequested()){
             webby_grab.setPosition(gamepad1.left_trigger);
             webby_spin.setPosition(gamepad1.right_trigger);
-            winch.setPower(gamepad2.left_stick_y);
+            winch.setPower(gamepad1.left_stick_y/2);
             telemetry.addData("LT_Grab", String.format("%.2f",webby_grab.getPosition()));
             telemetry.addData("RT_Spin", String.format("%.2f",webby_spin.getPosition()));
             telemetry.addData("LSY_Winch", String.format("%.2f", winch.getPower()));
+            telemetry.addData("Winch_Position", String.format("%d", winch.getCurrentPosition()));
             telemetry.update();
         }
     }

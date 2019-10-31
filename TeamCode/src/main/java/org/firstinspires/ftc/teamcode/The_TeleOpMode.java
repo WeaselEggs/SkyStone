@@ -16,6 +16,8 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 // - TestWebbyOpMode, to measure winch direction, torque, and speed
 @TeleOp
 public class The_TeleOpMode extends LinearOpMode {
+    private static final int MIN_HEIGHT_TICKS = 900;
+
     @Override
     public void runOpMode() throws InterruptedException {
         DcMotor front_left = hardwareMap.get(DcMotor.class, "Front Left");
@@ -43,7 +45,7 @@ public class The_TeleOpMode extends LinearOpMode {
 
         RevBlinkinLedDriver led = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
 
-led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE); // TODO: If we don't add LEDs remove this part
+        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE); // TODO: If we don't add LEDs remove this part
 
         webby_grab.setPosition(0.75);
         webby_spin.setPosition(0);
@@ -51,6 +53,8 @@ led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE); // TODO: If 
         foundation_right.setPosition(0.44);
 
         waitForStart();
+        winch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         while (!isStopRequested()){
             // Mecanum Drive
             double speed = -gamepad1.left_stick_y;
@@ -67,6 +71,9 @@ led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE); // TODO: If 
                 scale = 1/max;
             } else{
                 scale = 1;
+            }
+            if (gamepad1.left_bumper) {
+                scale /= 3;
             }
             front_left.setPower(scale*front_left_power);
             front_right.setPower(scale*front_right_power);
@@ -86,18 +93,30 @@ led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE); // TODO: If 
             }
 
             // Webby
-            winch.setPower(-gamepad2.left_stick_y / 2);
+            double winch_power = -gamepad2.left_stick_y / 2;
+            winch_power = Math.signum(winch_power) * (winch_power * winch_power);
+            if (gamepad2.right_bumper) {
+                winch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            } else {
+                if (winch_power < 0 && winch.getCurrentPosition() < 0) {
+                    winch_power = 0;
+                }
+            }
+            winch.setPower(winch_power);
             if (gamepad2.dpad_down){
                 webby_grab.setPosition(1);
             } else if (gamepad2.dpad_up){
                 webby_grab.setPosition(0.75);
             }
-            // TODO: Protect against webby spinning when it is too low
-            if (gamepad2.b){
-                webby_spin.setPosition(0);
-            } else if (gamepad2.a) {
-                webby_spin.setPosition(1);
-            }
+            // Protect against webby spinning when it is too low
+            //if (winch.getCurrentPosition() >= MIN_HEIGHT_TICKS) {
+                if (gamepad2.b) {
+                    webby_spin.setPosition(0);
+                } else if (gamepad2.a) {
+                    webby_spin.setPosition(1);
+                }
+            //}
 
             // Foundation Mover
             if (gamepad1.dpad_up){
@@ -114,6 +133,8 @@ led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE); // TODO: If 
             else if (gamepad1.back)
                 led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
 
+            telemetry.addData("Winch_Position", String.format("%d", winch.getCurrentPosition()));
+            telemetry.update();
         }
     }
 }
