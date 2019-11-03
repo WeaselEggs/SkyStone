@@ -81,10 +81,10 @@ public class The_TeleOpMode extends LinearOpMode {
             back_right.setPower(scale*back_right_power);
 
             // Intake
-            if (gamepad1.a) {
+            if (gamepad1.a || gamepad1.right_trigger > 0.2) {
                 leftIntakeServo.setPower(1.0);
                 rightIntakeServo.setPower(-1.0);
-            } else if (gamepad1.b) {
+            } else if (gamepad1.b || gamepad1.left_trigger > 0.2) {
                 leftIntakeServo.setPower(-1.0);
                 rightIntakeServo.setPower(1.0);
             } else {
@@ -93,17 +93,23 @@ public class The_TeleOpMode extends LinearOpMode {
             }
 
             // Webby
-            double winch_power = -gamepad2.left_stick_y / 2;
-            winch_power = Math.signum(winch_power) * (winch_power * winch_power);
+            double winch_power = -gamepad2.left_stick_y / 1.5;
+            winch_power = Math.signum(winch_power) * Math.pow(Math.abs(winch_power) , 1.5);
             if (gamepad2.right_bumper) {
                 winch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            } else {
-                if (winch_power < 0 && winch.getCurrentPosition() < 0) {
-                    winch_power = 0;
-                }
+            } else if (winch_power < 0 && winch.getCurrentPosition() < 0) {
+                winch_power = 0;
             }
-            winch.setPower(winch_power);
+            if (gamepad2.left_bumper) {
+                winch_power *= 0.3;
+            }
+            if (Math.abs(winch_power) < 0.05) {
+                winch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                winch.setTargetPosition(winch.getCurrentPosition());
+            } else {
+                winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                winch.setPower(winch_power);
+            }
             if (gamepad2.dpad_down){
                 webby_grab.setPosition(1);
             } else if (gamepad2.dpad_up){

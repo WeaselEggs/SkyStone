@@ -15,6 +15,7 @@ public class TestWebbyOpMode extends LinearOpMode {
         ServoImplEx webby_spin = hardwareMap.get(ServoImplEx.class,"Webby Spin");
         webby_spin.setPwmRange(new PwmControl.PwmRange(553,2425));
         DcMotor winch = hardwareMap.get(DcMotor.class, "Winch");
+        winch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
