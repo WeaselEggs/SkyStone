@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-@TeleOp
+@TeleOp(name = "Foundation", group = "Test")
 public class TestFoundationOpMode extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

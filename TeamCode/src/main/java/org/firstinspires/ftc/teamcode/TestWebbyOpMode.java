@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-@TeleOp
+@TeleOp(name = "Webby", group = "Test")
 public class TestWebbyOpMode extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

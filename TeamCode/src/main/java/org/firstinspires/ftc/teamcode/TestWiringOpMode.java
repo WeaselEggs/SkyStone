@@ -6,9 +6,8 @@ import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PwmControl;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-@TeleOp
+@TeleOp(name = "Wiring", group = "Test")
 public class TestWiringOpMode extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

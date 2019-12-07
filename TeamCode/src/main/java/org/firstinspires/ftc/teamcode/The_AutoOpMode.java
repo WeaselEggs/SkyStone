@@ -19,6 +19,7 @@ public class The_AutoOpMode extends LinearOpMode {
     private boolean right_choice;
     private boolean forward_choice;
     private boolean fancy_auto;
+
     @Override
     public void runOpMode() throws InterruptedException {
         front_left = hardwareMap.get(DcMotor.class, "Front Left");
@@ -27,6 +28,18 @@ public class The_AutoOpMode extends LinearOpMode {
         back_left = hardwareMap.get(DcMotor.class, "Back Left");
         front_left.setDirection(DcMotorSimple.Direction.REVERSE);
         back_left.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        ServoImplEx webby_grab = hardwareMap.get(ServoImplEx.class, "Webby Grab");
+        webby_grab.setPwmRange(new PwmControl.PwmRange(	500 ,2500));
+        ServoImplEx webby_spin = hardwareMap.get(ServoImplEx.class,"Webby Spin");
+        webby_spin.setPwmRange(new PwmControl.PwmRange(553,2425));
+
+        webby_grab.setPosition(0.75);
+        webby_spin.setPosition(0);
+
+        ServoImplEx crap = hardwareMap.get(ServoImplEx.class,"Crap");
+        crap.setPwmRange(new PwmControl.PwmRange(553,2425));
+        crap.setPosition(0.15);
 
         ServoImplEx foundation_left = hardwareMap.get(ServoImplEx.class, "Foundation Left");
         foundation_left.setPwmRange(new PwmControl.PwmRange(500, 2500));
@@ -60,9 +73,9 @@ public class The_AutoOpMode extends LinearOpMode {
             }
 
             if (right_choice) {
-                drive(0, -1, 0, 1000);
+                drive(0, -1, 0, 500);
             } else {
-                drive(0, 1, 0, 1000);
+                drive(0, 1, 0, 500);
             }
         }
     }

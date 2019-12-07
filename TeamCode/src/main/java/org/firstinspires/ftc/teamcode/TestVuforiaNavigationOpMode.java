@@ -79,8 +79,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  * see  skystone/doc/tutorial/FTC_FieldCoordinateSystemDefinition.pdf
  */
 
-
-@TeleOp
+@TeleOp(name = "Vuforia", group = "Test")
 public class TestVuforiaNavigationOpMode extends LinearOpMode {
 
     // IMPORTANT:  For Phone Camera, set 1) the camera source and 2) the orientation, based on how your phone is mounted:

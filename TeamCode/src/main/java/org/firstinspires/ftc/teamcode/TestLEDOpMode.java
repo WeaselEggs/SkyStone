@@ -4,7 +4,7 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp
+@TeleOp(name = "LED", group = "Test")
 public class TestLEDOpMode extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

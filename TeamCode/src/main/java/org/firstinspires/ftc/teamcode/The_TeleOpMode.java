@@ -38,6 +38,9 @@ public class The_TeleOpMode extends LinearOpMode {
         ServoImplEx webby_spin = hardwareMap.get(ServoImplEx.class,"Webby Spin");
         webby_spin.setPwmRange(new PwmControl.PwmRange(553,2425));
 
+        ServoImplEx crap = hardwareMap.get(ServoImplEx.class,"Crap");
+        crap.setPwmRange(new PwmControl.PwmRange(553,2425));
+
         ServoImplEx foundation_left = hardwareMap.get(ServoImplEx.class, "Foundation Left");
         foundation_left.setPwmRange(new PwmControl.PwmRange(500, 2500));
         ServoImplEx foundation_right = hardwareMap.get(ServoImplEx.class, "Foundation Right");
@@ -49,6 +52,7 @@ public class The_TeleOpMode extends LinearOpMode {
 
         webby_grab.setPosition(0.75);
         webby_spin.setPosition(0);
+        crap.setPosition(0.15);
         foundation_left.setPosition(0.45);
         foundation_right.setPosition(0.44);
 
@@ -123,12 +127,18 @@ public class The_TeleOpMode extends LinearOpMode {
                     webby_spin.setPosition(1);
                 }
             //}
+            // Crapper
+            if (gamepad2.y){ //open
+                crap.setPosition(1);
+            } else if (gamepad2.x){ //closed
+                crap.setPosition(0.15);
+            }
 
             // Foundation Mover
             if (gamepad1.dpad_up){
                 foundation_left.setPosition(0.45);
                 foundation_right.setPosition(0.44);
-            } else if (gamepad1.dpad_down){
+            } else if (gamepad1.dpad_down) {
                 foundation_left.setPosition(0.9);
                 foundation_right.setPosition(0);
             }
