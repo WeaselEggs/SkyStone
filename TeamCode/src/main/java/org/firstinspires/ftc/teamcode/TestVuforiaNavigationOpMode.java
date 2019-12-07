@@ -30,6 +30,11 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PwmControl;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -76,7 +81,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 
 @TeleOp
-public class VuforiaNavigationOpMode extends LinearOpMode {
+public class TestVuforiaNavigationOpMode extends LinearOpMode {
 
     // IMPORTANT:  For Phone Camera, set 1) the camera source and 2) the orientation, based on how your phone is mounted:
     // 1) Camera Source.  Valid choices are:  BACK (behind screen) or FRONT (selfie side)
@@ -85,7 +90,7 @@ public class VuforiaNavigationOpMode extends LinearOpMode {
     // NOTE: If you are running on a CONTROL HUB, with only one USB WebCam, you must select CAMERA_CHOICE = BACK; and PHONE_IS_PORTRAIT = false;
     //
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = FRONT;
-    private static final boolean PHONE_IS_PORTRAIT = false  ;
+    private static final boolean PHONE_IS_PORTRAIT = true  ;
 
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -128,8 +133,23 @@ public class VuforiaNavigationOpMode extends LinearOpMode {
     private float phoneXRotate    = 0;
     private float phoneYRotate    = 0;
     private float phoneZRotate    = 0;
+    private DcMotor front_left;
+    private DcMotor front_right;
+    private DcMotor back_right;
+    private DcMotor back_left;
 
     @Override public void runOpMode() {
+        front_left = hardwareMap.get(DcMotor.class, "Front Left");
+        front_right = hardwareMap.get(DcMotor.class, "Front Right");
+        back_right = hardwareMap.get(DcMotor.class, "Back Right");
+        back_left = hardwareMap.get(DcMotor.class, "Back Left");
+        front_left.setDirection(DcMotorSimple.Direction.REVERSE);
+        back_left.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        CRServoImplEx leftIntakeServo = hardwareMap.get(CRServoImplEx.class, "Left Intake");
+        leftIntakeServo.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        CRServoImplEx rightIntakeServo = hardwareMap.get(CRServoImplEx.class, "Right Intake");
+        rightIntakeServo.setPwmRange(new PwmControl.PwmRange(500, 2500));
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          * We can pass Vuforia the handle to a camera preview resource (on the RC phone);
@@ -279,14 +299,14 @@ public class VuforiaNavigationOpMode extends LinearOpMode {
 
         // Rotate the phone vertical about the X axis if it's in portrait mode
         if (PHONE_IS_PORTRAIT) {
-            phoneXRotate = 90 ;
+            phoneXRotate = -90 ;
         }
 
         // Next, translate the camera lens to where it is on the robot.
         // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
-        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot center
-        final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
-        final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
+        final float CAMERA_FORWARD_DISPLACEMENT  = 7.5f * mmPerInch;   // eg: Camera is 4 Inches in front of robot center
+        final float CAMERA_VERTICAL_DISPLACEMENT = 8.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
+        final float CAMERA_LEFT_DISPLACEMENT     = -4f * mmPerInch;     // eg: Camera is ON the robot's center line
 
         OpenGLMatrix robotFromCamera = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
@@ -310,6 +330,11 @@ public class VuforiaNavigationOpMode extends LinearOpMode {
         // Tap the preview window to receive a fresh image.
 
         targetsSkyStone.activate();
+        waitForStart();
+
+        leftIntakeServo.setPower(1.0);
+        rightIntakeServo.setPower(-1.0);
+
         while (!isStopRequested()) {
 
             // check all the trackable targets to see which one (if any) is visible.
@@ -335,6 +360,7 @@ public class VuforiaNavigationOpMode extends LinearOpMode {
                 VectorF translation = lastLocation.getTranslation();
                 telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
                         translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+                drive(0.2,0, Range.clip(-translation.get(1)/1000,-1,1));
 
                 // express the rotation of the robot in degrees.
                 Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
@@ -342,11 +368,34 @@ public class VuforiaNavigationOpMode extends LinearOpMode {
             }
             else {
                 telemetry.addData("Visible Target", "none");
+                drive(0.2,0,0);
             }
             telemetry.update();
         }
 
         // Disable Tracking when we are done;
         targetsSkyStone.deactivate();
+    }
+    private void drive(double speed, double strafe, double rotate) {
+        double front_left_power = (speed + strafe + rotate);
+        double front_right_power = (speed - strafe - rotate);
+        double back_left_power = (speed - strafe + rotate);
+        double back_right_power = (speed + strafe - rotate);
+        double max = Math.max(Math.max(Math.abs(front_left_power), Math.abs(front_right_power)),
+                Math.max(Math.abs(back_left_power), Math.abs(back_right_power)));
+        double scale;
+        if (max > 1) {
+            scale = 1 / max;
+        } else {
+            scale = 1;
+        }
+        if (gamepad1.left_bumper) {
+            scale /= 3;
+        }
+        front_left.setPower(scale * front_left_power);
+        front_right.setPower(scale * front_right_power);
+        back_left.setPower(scale * back_left_power);
+        back_right.setPower(scale * back_right_power);
+
     }
 }
