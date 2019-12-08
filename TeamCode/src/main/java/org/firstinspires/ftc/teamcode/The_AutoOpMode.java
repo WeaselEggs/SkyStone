@@ -52,16 +52,40 @@ public class The_AutoOpMode extends LinearOpMode {
         choosewell();
         waitForStart();
         if(fancy_auto){
-            drive(-.5,0,0,1500);
+            if(right_choice){
+                drive(-.5,-.25,0,1000);
+            }else {
+                drive(-.5,.25,0,1000);
+            }
             foundation_left.setPosition(0.9);
             foundation_right.setPosition(0);
-            waitfor(500);
+            waitfor(500);//to wait for foundation servos to grab
+            //pull foundation towards robot starting position
+            drive(1,0,0,500);
+            //rotate foundation
             if(right_choice) {
-                drive(0, 0, 1,2000);
+                drive(0, 0, 1,1000);
             }
             else {
-                drive(0, 0, -1,2000);
+                drive(0, 0, -1,1000);
             }
+            //push foundation against wall-for greatest chance to score
+            drive(-1,0,0,1000);
+
+            foundation_left.setPosition(0.45);
+            foundation_right.setPosition(0.44);
+
+
+
+            if(right_choice){
+                drive(1, -.7,0,1200);
+            }
+            else{
+                drive(1, .7,0,1200);
+
+            }
+
+
         }
         else{
             if (wait_choice) {
