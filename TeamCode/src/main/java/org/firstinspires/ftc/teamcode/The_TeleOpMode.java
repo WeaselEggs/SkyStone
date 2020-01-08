@@ -24,8 +24,8 @@ public class The_TeleOpMode extends LinearOpMode {
         DcMotor front_right = hardwareMap.get(DcMotor.class, "Front Right");
         DcMotor back_right = hardwareMap.get(DcMotor.class, "Back Right");
         DcMotor back_left = hardwareMap.get(DcMotor.class, "Back Left");
-        front_left.setDirection(DcMotorSimple.Direction.REVERSE);
-        back_left.setDirection(DcMotorSimple.Direction.REVERSE);
+        front_right.setDirection(DcMotorSimple.Direction.REVERSE);
+        back_right.setDirection(DcMotorSimple.Direction.REVERSE);
 
         CRServoImplEx leftIntakeServo = hardwareMap.get(CRServoImplEx.class, "Left Intake");
         leftIntakeServo.setPwmRange(new PwmControl.PwmRange(500, 2500));

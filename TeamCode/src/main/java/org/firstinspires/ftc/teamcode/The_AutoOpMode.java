@@ -26,8 +26,10 @@ public class The_AutoOpMode extends LinearOpMode {
         front_right = hardwareMap.get(DcMotor.class, "Front Right");
         back_right = hardwareMap.get(DcMotor.class, "Back Right");
         back_left = hardwareMap.get(DcMotor.class, "Back Left");
-        front_left.setDirection(DcMotorSimple.Direction.REVERSE);
-        back_left.setDirection(DcMotorSimple.Direction.REVERSE);
+        front_right.setDirection(DcMotorSimple.Direction.REVERSE);
+        back_right.setDirection(DcMotorSimple.Direction.REVERSE);
+        //TODO: this is necessary because we replaced a spur gear motor by a planetary one
+        back_right.setDirection(DcMotorSimple.Direction.REVERSE);
 
         ServoImplEx webby_grab = hardwareMap.get(ServoImplEx.class, "Webby Grab");
         webby_grab.setPwmRange(new PwmControl.PwmRange(	500 ,2500));
@@ -77,12 +79,22 @@ public class The_AutoOpMode extends LinearOpMode {
 
 
 
-            if(right_choice){
-                drive(1, -.7,0,1200);
+            if(right_choice) {
+                if (forward_choice) {
+                    drive(1, -.7, 0, 1200);
+                }
+                else{
+                    drive(.7,-.7,0,1300);
+                }
             }
-            else{
-                drive(1, .7,0,1200);
+            else {
+                if(forward_choice) {
+                    drive(1, .7, 0, 1200);
+                }
 
+                else {
+                    drive(.7, .7, 0, 1300);
+                }
             }
 
 
@@ -143,8 +155,15 @@ public class The_AutoOpMode extends LinearOpMode {
             if (gamepad1.b) {
                 fancy_auto = false;
             }
+            if (gamepad1.dpad_up) {
+                forward_choice = true;
+            }
+            if (gamepad1.dpad_down) {
+                forward_choice = false;
+            }
             telemetry.addData("fancy auto(a/b)", fancy_auto ? "yes" : "no");
             telemetry.addData("robot position(dpad left/dpad right)", right_choice ? "right" : "left");
+            telemetry.addData("forward(up/down dpad)", forward_choice ? "yes" : "no!!!");
             if (!fancy_auto){
                 if (gamepad1.y) {
                     wait_choice = true;
@@ -159,7 +178,6 @@ public class The_AutoOpMode extends LinearOpMode {
                     forward_choice = false;
                 }
                 telemetry.addData("wait(x/y)", wait_choice ? "true" : "false");
-                telemetry.addData("forward(up/down dpad)", forward_choice ? "yes" : "no!!!");
             }
             telemetry.update();
         }
