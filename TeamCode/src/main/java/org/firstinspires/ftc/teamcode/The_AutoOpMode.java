@@ -81,19 +81,22 @@ public class The_AutoOpMode extends LinearOpMode {
 
             if(right_choice) {
                 if (forward_choice) {
-                    drive(1, -.7, 0, 1200);
+                    drive(1, 0.1, 0, 1000);
                 }
                 else{
                     drive(.7,-.7,0,1300);
+                    drive(1,0,0,200);
                 }
+
             }
             else {
                 if(forward_choice) {
-                    drive(1, .7, 0, 1200);
+                    drive(1, 0.1, 0, 1000);
                 }
 
                 else {
                     drive(.7, .7, 0, 1300);
+                    drive(1,0,0,200);
                 }
             }
 
