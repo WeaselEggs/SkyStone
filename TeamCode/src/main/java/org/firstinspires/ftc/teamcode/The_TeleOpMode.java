@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 // order to test programs:
 // - TestFoundationOpMode, to measure servo up/down positions for left/right servo
@@ -59,6 +60,8 @@ public class The_TeleOpMode extends LinearOpMode {
         waitForStart();
         winch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        ElapsedTime winch_timer = new ElapsedTime();
+        boolean winch_stable = true;
         while (!isStopRequested()){
             // Mecanum Drive
             double speed = -gamepad1.left_stick_y;
@@ -97,36 +100,54 @@ public class The_TeleOpMode extends LinearOpMode {
             }
 
             // Webby
-            double winch_power = -gamepad2.left_stick_y / 1.5;
-            winch_power = Math.signum(winch_power) * Math.pow(Math.abs(winch_power) , 1.5);
-            if (gamepad2.right_bumper) {
-                winch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            } else if (winch_power < 0 && winch.getCurrentPosition() < 0) {
-                winch_power = 0;
-            }
-            if (gamepad2.left_bumper) {
-                winch_power *= 0.3;
-            }
-            if (Math.abs(winch_power) < 0.05) {
-                winch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                winch.setTargetPosition(winch.getCurrentPosition());
-            } else {
-                winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                winch.setPower(winch_power);
-            }
             if (gamepad2.dpad_down){
                 webby_grab.setPosition(1);
             } else if (gamepad2.dpad_up){
                 webby_grab.setPosition(0.75);
             }
             // Protect against webby spinning when it is too low
-            //if (winch.getCurrentPosition() >= MIN_HEIGHT_TICKS) {
-                if (gamepad2.b) {
-                    webby_spin.setPosition(0);
-                } else if (gamepad2.a) {
-                    webby_spin.setPosition(1);
-                }
+            // TODO: if (winch.getCurrentPosition() >= MIN_HEIGHT_TICKS) {
+            if (gamepad2.b) {
+                webby_spin.setPosition(0);
+            } else if (gamepad2.a) {
+                webby_spin.setPosition(1);
+            }
             //}
+
+            // Winch
+            double winch_power = -gamepad2.left_stick_y / 1.5;
+            winch_power = Math.signum(winch_power) * Math.pow(Math.abs(winch_power) , 1.5);
+            if (gamepad2.right_bumper) {
+                winch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                winch_stable = true;
+            } else if (winch_power < 0 && winch.getCurrentPosition() < 0) {
+                winch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                winch_power = 0;
+            }
+            if (gamepad2.left_bumper) {
+                winch_power *= 0.3;
+            }
+            if (Math.abs(winch_power) < 0.05) {
+                if (!winch_stable) {
+                    if (winch_timer.milliseconds() < 500) {
+                        winch.setPower(0.08);
+                    } else {
+                        winch.setTargetPosition(winch.getCurrentPosition());
+                        winch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        winch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                        winch.setPower(0);
+                        winch_stable = true;
+                    }
+                }
+            } else {
+                if (winch_stable) {
+                    winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    winch_stable = false;
+                }
+                winch_timer.reset();
+                winch.setPower(winch_power);
+            }
+
             // Crapper
             if (gamepad2.y){ //open
                 crap.setPosition(1);

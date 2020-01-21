@@ -28,8 +28,6 @@ public class The_AutoOpMode extends LinearOpMode {
         back_left = hardwareMap.get(DcMotor.class, "Back Left");
         front_right.setDirection(DcMotorSimple.Direction.REVERSE);
         back_right.setDirection(DcMotorSimple.Direction.REVERSE);
-        //TODO: this is necessary because we replaced a spur gear motor by a planetary one
-        back_right.setDirection(DcMotorSimple.Direction.REVERSE);
 
         ServoImplEx webby_grab = hardwareMap.get(ServoImplEx.class, "Webby Grab");
         webby_grab.setPwmRange(new PwmControl.PwmRange(	500 ,2500));
@@ -56,7 +54,8 @@ public class The_AutoOpMode extends LinearOpMode {
         if(fancy_auto){
             if(right_choice){
                 drive(-.5,-.25,0,1000);
-            }else {
+            }
+            else {
                 drive(-.5,.25,0,1000);
             }
             foundation_left.setPosition(0.9);
@@ -77,8 +76,6 @@ public class The_AutoOpMode extends LinearOpMode {
             foundation_left.setPosition(0.45);
             foundation_right.setPosition(0.44);
 
-
-
             if(right_choice) {
                 if (forward_choice) {
                     drive(1, 0.1, 0, 1000);
@@ -93,16 +90,13 @@ public class The_AutoOpMode extends LinearOpMode {
                 if(forward_choice) {
                     drive(1, 0.1, 0, 1000);
                 }
-
                 else {
                     drive(.7, .7, 0, 1300);
                     drive(1,0,0,200);
                 }
             }
-
-
         }
-        else{
+        else {
             if (wait_choice) {
                 waitfor(20000);
             }
@@ -144,6 +138,7 @@ public class The_AutoOpMode extends LinearOpMode {
         front_right.setPower(0);
         back_right.setPower(0);
     }
+
     private void choosewell(){
         while (!isStopRequested() && !isStarted()) {
             if (gamepad1.dpad_left) {
@@ -185,6 +180,7 @@ public class The_AutoOpMode extends LinearOpMode {
             telemetry.update();
         }
     }
+
     private void waitfor(long milis){
         ElapsedTime timer=new ElapsedTime();
         while (opModeIsActive() && timer.milliseconds()<milis){
