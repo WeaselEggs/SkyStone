@@ -49,7 +49,7 @@ public class The_TeleOpMode extends LinearOpMode {
 
         RevBlinkinLedDriver led = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
 
-        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE); // TODO: If we don't add LEDs remove this part
+        led.setPattern(RevBlinkinLedDriver.BlinkinPattern.SINELON_PARTY_PALETTE);
 
         webby_grab.setPosition(0.75);
         webby_spin.setPosition(0);
@@ -62,6 +62,11 @@ public class The_TeleOpMode extends LinearOpMode {
         winch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         ElapsedTime winch_timer = new ElapsedTime();
         boolean winch_stable = true;
+        boolean webby_open = true;
+        boolean blue_alliance = false;
+        boolean red_alliance = false;
+        boolean foundation_down = false;
+        ElapsedTime webby_timer = new ElapsedTime(1000);
         while (!isStopRequested()){
             // Mecanum Drive
             double speed = -gamepad1.left_stick_y;
@@ -88,12 +93,16 @@ public class The_TeleOpMode extends LinearOpMode {
             back_right.setPower(scale*back_right_power);
 
             // Intake
+            boolean intaking = false;
+            boolean extaking = false;
             if (gamepad1.a || gamepad1.right_trigger > 0.2) {
                 leftIntakeServo.setPower(1.0);
                 rightIntakeServo.setPower(-1.0);
+                intaking = true;
             } else if (gamepad1.b || gamepad1.left_trigger > 0.2) {
                 leftIntakeServo.setPower(-1.0);
                 rightIntakeServo.setPower(1.0);
+                extaking = true;
             } else {
                 leftIntakeServo.setPower(0);
                 rightIntakeServo.setPower(0);
@@ -102,8 +111,12 @@ public class The_TeleOpMode extends LinearOpMode {
             // Webby
             if (gamepad2.dpad_down){
                 webby_grab.setPosition(1);
+                webby_open = false;
+                webby_timer.reset();
             } else if (gamepad2.dpad_up){
                 webby_grab.setPosition(0.75);
+                webby_open = true;
+                webby_timer.reset();
             }
             // Protect against webby spinning when it is too low
             // TODO: if (winch.getCurrentPosition() >= MIN_HEIGHT_TICKS) {
@@ -115,6 +128,7 @@ public class The_TeleOpMode extends LinearOpMode {
             //}
 
             // Winch
+            boolean winch_at_bottom = false;
             double winch_power = -gamepad2.left_stick_y / 1.5;
             winch_power = Math.signum(winch_power) * Math.pow(Math.abs(winch_power) , 1.5);
             if (gamepad2.right_bumper) {
@@ -123,6 +137,7 @@ public class The_TeleOpMode extends LinearOpMode {
             } else if (winch_power < 0 && winch.getCurrentPosition() < 0) {
                 winch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 winch_power = 0;
+                winch_at_bottom = true;
             }
             if (gamepad2.left_bumper) {
                 winch_power *= 0.3;
@@ -159,16 +174,46 @@ public class The_TeleOpMode extends LinearOpMode {
             if (gamepad1.dpad_up){
                 foundation_left.setPosition(0.45);
                 foundation_right.setPosition(0.44);
+                foundation_down = false;
             } else if (gamepad1.dpad_down) {
                 foundation_left.setPosition(0.9);
                 foundation_right.setPosition(0);
+                foundation_down = true;
             }
 
-            // LEDs TODO: If we don't add LEDs remove this part
-            if (gamepad1.start)
-                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-            else if (gamepad1.back)
-                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+            if (gamepad1.start || gamepad2.start) {
+                blue_alliance = true;
+                red_alliance = false;
+            } else if (gamepad1.back || gamepad2.back) {
+                blue_alliance = false;
+                red_alliance = true;
+            }
+
+            if (winch_at_bottom) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_LAVA_PALETTE);
+            } else if (foundation_down) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.LARSON_SCANNER_GRAY);
+            } else if (webby_timer.milliseconds() < 500) {
+                if (webby_open) {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.SHOT_BLUE);
+                } else {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.SHOT_RED);
+                }
+            } else if (!webby_open && intaking) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.CONFETTI);
+            } else if (webby_open && intaking) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
+            } else if (extaking) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_OCEAN_PALETTE);
+            } else {
+                if (blue_alliance) {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
+                } else if (red_alliance) {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_RED);
+                } else {
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE);
+                }
+            }
 
             telemetry.addData("Winch_Position", String.format("%d", winch.getCurrentPosition()));
             telemetry.update();

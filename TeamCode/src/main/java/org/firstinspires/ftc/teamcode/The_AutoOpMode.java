@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,6 +16,7 @@ public class The_AutoOpMode extends LinearOpMode {
     private DcMotor front_right;
     private DcMotor back_right;
     private DcMotor back_left;
+    private RevBlinkinLedDriver led;
     private boolean wait_choice;
     private boolean right_choice;
     private boolean forward_choice;
@@ -46,11 +48,41 @@ public class The_AutoOpMode extends LinearOpMode {
         ServoImplEx foundation_right = hardwareMap.get(ServoImplEx.class, "Foundation Right");
         foundation_right.setPwmRange(new PwmControl.PwmRange(500, 2500));
 
+        led = hardwareMap.get(RevBlinkinLedDriver.class, "LED");
+
         foundation_left.setPosition(0.45);
         foundation_right.setPosition(0.44);
 
+
         choosewell();
+
         waitForStart();
+
+        if (fancy_auto && right_choice && forward_choice) {
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_LAVA_PALETTE);
+        }
+        if (fancy_auto && !right_choice && forward_choice) {
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_OCEAN_PALETTE);
+        }
+        if (fancy_auto && right_choice && !forward_choice) {
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.SINELON_LAVA_PALETTE);
+        }
+        if (fancy_auto && !right_choice && !forward_choice) {
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.SINELON_OCEAN_PALETTE);
+        }
+        if(!fancy_auto && !wait_choice && !forward_choice){
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_PARTY_PALETTE);
+        }
+        if(!fancy_auto && !wait_choice && forward_choice){
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_FOREST_PALETTE);
+        }
+        if(!fancy_auto && wait_choice && !forward_choice){
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.TWINKLES_PARTY_PALETTE);
+        }
+        if(!fancy_auto && wait_choice && forward_choice){
+            led.setPattern(RevBlinkinLedDriver.BlinkinPattern.TWINKLES_FOREST_PALETTE);
+        }
+
         if(fancy_auto){
             if(right_choice){
                 drive(-.5,-.25,0,1000);
@@ -78,11 +110,12 @@ public class The_AutoOpMode extends LinearOpMode {
 
             if(right_choice) {
                 if (forward_choice) {
-                    drive(1, 0.1, 0, 800);
+                    drive(1, -0.1, 0, 800);
                 }
                 else{
                     drive(.7,-.7,0,1300);
-                    drive(1,0,0,200);
+                    drive(0,-.5,0,300);
+                    drive(1,0,0,100);
                 }
 
             }
@@ -92,6 +125,7 @@ public class The_AutoOpMode extends LinearOpMode {
                 }
                 else {
                     drive(.7, .7, 0, 1300);
+                    drive(0,.5,0,300);
                     drive(1,0,0,100);
                 }
             }
@@ -139,7 +173,7 @@ public class The_AutoOpMode extends LinearOpMode {
         back_right.setPower(0);
     }
 
-    private void choosewell(){
+    private void choosewell() {
         while (!isStopRequested() && !isStarted()) {
             if (gamepad1.dpad_left) {
                 right_choice = false;
@@ -162,7 +196,7 @@ public class The_AutoOpMode extends LinearOpMode {
             telemetry.addData("fancy auto(a/b)", fancy_auto ? "yes" : "no");
             telemetry.addData("robot position(dpad left/dpad right)", right_choice ? "right" : "left");
             telemetry.addData("forward(up/down dpad)", forward_choice ? "yes" : "no!!!");
-            if (!fancy_auto){
+            if (!fancy_auto) {
                 if (gamepad1.y) {
                     wait_choice = true;
                 }
@@ -178,6 +212,30 @@ public class The_AutoOpMode extends LinearOpMode {
                 telemetry.addData("wait(x/y)", wait_choice ? "true" : "false");
             }
             telemetry.update();
+            if (fancy_auto && right_choice && forward_choice) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_LAVA_PALETTE);
+            }
+            if (fancy_auto && !right_choice && forward_choice) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_OCEAN_PALETTE);
+            }
+            if (fancy_auto && right_choice && !forward_choice) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.SINELON_LAVA_PALETTE);
+            }
+            if (fancy_auto && !right_choice && !forward_choice) {
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.SINELON_OCEAN_PALETTE);
+            }
+            if(!fancy_auto && !wait_choice && !forward_choice){
+                    led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_PARTY_PALETTE);
+            }
+            if(!fancy_auto && !wait_choice && forward_choice){
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_FOREST_PALETTE);
+            }
+            if(!fancy_auto && wait_choice && !forward_choice){
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.TWINKLES_PARTY_PALETTE);
+            }
+            if(!fancy_auto && wait_choice && forward_choice){
+                led.setPattern(RevBlinkinLedDriver.BlinkinPattern.TWINKLES_FOREST_PALETTE);
+            }
         }
     }
 
